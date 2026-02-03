@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Create Student</title>
+
+    <style>
+      :root {
+        --bg: #f4f6f8;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success: #198754;
+        --danger: #dc3545;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: radial-gradient(
+            circle at 20% 10%,
+            rgba(37, 99, 235, 0.12),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 80% 0%,
+            rgba(16, 185, 129, 0.12),
+            transparent 35%
+          ),
+          var(--bg);
+        padding: 40px 18px;
+        color: var(--text);
+      }
+
+      /* Top bar with logo */
+      .topbar {
+        max-width: 980px;
+        margin: 0 auto 18px auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+        backdrop-filter: blur(6px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 6px;
+      }
+
+      .brand .title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand .title strong {
+        font-size: 15px;
+      }
+
+      .brand .title span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .badge {
+        font-size: 14px;
+        color: var(--muted);
+        border: 1px dashed var(--border);
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: #fff;
+      }
+
+      .page {
+        max-width: 980px;
+        margin: 0 auto;
+        display: flex;
+        gap: 22px;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .container,
+      .list-container {
+        background: var(--card);
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .container {
+        width: 430px;
+      }
+
+      .list-container {
+        width: 500px;
+      }
+
+      .card-header {
+        margin-bottom: 14px;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .card-header p {
+        margin: 6px 0 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      label {
+        font-weight: bold;
+        color: #374151;
+        font-size: 13px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        margin-top: 6px;
+        margin-bottom: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        outline: none;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+        background: #fff;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: rgba(37, 99, 235, 0.6);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      button {
+        width: 100%;
+        padding: 5px;
+        background: linear-gradient(135deg, var(--primary), #3b82f6);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.08s ease, background 0.2s ease;
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, var(--primary-dark), #2563eb);
+      }
+
+      button:active {
+        transform: scale(0.99);
+      }
+
+      /* Student list */
+      .list-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .list-header h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .count {
+        font-size: 12px;
+        color: var(--muted);
+        background: #f9fafb;
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+
+      .student-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 12px;
+        margin-top: 12px;
+        background: #fff;
+      }
+
+      .student-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .student-name {
+        font-weight: bold;
+        color: #111827;
+      }
+
+      .pill {
+        font-size: 12px;
+        color: var(--primary);
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.18);
+        padding: 4px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+
+      .student-meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 6px;
+        line-height: 1.35;
+      }
+
+      /* ✅ Popup / Toast */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #222;
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.25s ease;
+        z-index: 9999;
+        max-width: 340px;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast.success {
+        background: var(--success);
+      }
+
+      .toast.error {
+        background: var(--danger);
+      }
+
+      /* Responsive */
+      @media (max-width: 980px) {
+        .page {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .container,
+        .list-container {
+          width: 100%;
+        }
+        .topbar {
+          max-width: 980px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ✅ Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ✅ Topbar with logo -->
+    <div class="topbar">
+      <div class="brand">
+        <!-- Put logo at: src/public/logo.png -->
+        <img src="/logo.png" alt="Logo" />
+        <div class="title">
+          <strong>Stanton Univarsity</strong>
+          <span>TypeScript + PostgreSQL (Template Based)</span>
+        </div>
+      </div>
+
+      <div class="badge">
+        Public IP:
+        <strong><%= publicIP %></strong>:3000
+      </div>
+    </div>
+
+    <div class="page">
+      <!-- LEFT: FORM -->
+      <div class="container">
+        <div class="card-header">
+          <h2>Create Student</h2>
+          <p>
+            Fill in the details and click save. You’ll stay on the same page.
+          </p>
+        </div>
+
+        <form id="studentForm">
+          <div class="grid-2">
+            <div>
+              <label>First Name</label>
+              <input type="text" name="first_name" required />
+            </div>
+
+            <div>
+              <label>Last Name</label>
+              <input type="text" name="last_name" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Roll Number</label>
+              <input type="text" name="roll" required />
+            </div>
+
+            <div>
+              <label>Registration Number</label>
+              <input type="text" name="registration" required />
+            </div>
+          </div>
+
+          <label>Email</label>
+          <input type="email" name="email" required />
+
+          <label>Address</label>
+          <textarea name="address" rows="3" required></textarea>
+
+          <button id="submitBtn" type="submit">Save Student</button>
+        </form>
+      </div>
+
+      <!-- RIGHT: LIST -->
+      <% if (students && students.length > 0) { %>
+      <div class="list-container">
+        <div class="list-header">
+          <h2>Student List</h2>
+          <div class="count"><%= students.length %> total</div>
+        </div>
+
+        <% students.forEach(student => { %>
+        <div class="student-card" data-student-id="<%= student.id %>">
+          <div class="student-top">
+            <div class="student-name">
+              <%= student.first_name %> <%= student.last_name %>
+            </div>
+            <div class="pill">Roll: <%= student.roll %></div>
+          </div>
+
+          <div class="student-meta">
+            <div>Reg: <strong><%= student.registration %></strong></div>
+            <div>Email: <%= student.email %></div>
+            <div>Address: <%= student.address %></div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 10px">
+            <button
+              type="button"
+              class="btn-edit"
+              data-id="<%= student.id %>"
+              style="flex: 1; background: #f59e0b"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              class="btn-delete"
+              data-id="<%= student.id %>"
+              style="flex: 1; background: #ef4444"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <% }) %>
+      </div>
+      <% } %>
+    </div>
+
+    <script>
+      const form = document.getElementById("studentForm");
+      const toast = document.getElementById("toast");
+      const submitBtn = document.getElementById("submitBtn");
+
+      function showToast(message, type) {
+        toast.className = "toast " + (type || "");
+        toast.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+      }
+
+      function setFormMode(mode, id = "") {
+        form.dataset.mode = mode;
+        form.dataset.editId = id;
+        submitBtn.textContent =
+          mode === "edit" ? "Update Student" : "Save Student";
+      }
+
+      function showToast(message, type) {
+        toast.className = "toast " + (type || "");
+        toast.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+      }
+
+      // ✅ Create or Update
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const body = new URLSearchParams(formData);
+
+        const mode = form.dataset.mode;
+        const editId = form.dataset.editId;
+
+        const url = mode === "edit" ? `/update/${editId}` : "/submit";
+
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body,
+          });
+
+          const data = await res.json();
+
+          if (!data.ok) {
+            showToast(data.message || "Operation failed.", "error");
+            return;
+          }
+
+          showToast(data.message || "Success!", "success");
+          form.reset();
+          setFormMode("create");
+
+          setTimeout(() => window.location.reload(), 700);
+        } catch (err) {
+          showToast("Server error. Please try again.", "error");
+        }
+      });
+
+      // ✅ Edit button click
+      document.addEventListener("click", async (e) => {
+        const editBtn = e.target.closest(".btn-edit");
+        if (!editBtn) return;
+
+        const id = editBtn.dataset.id;
+
+        try {
+          const res = await fetch(`/student/${id}`);
+          const data = await res.json();
+
+          if (!data.ok) {
+            showToast(data.message || "Failed to load student.", "error");
+            return;
+          }
+
+          const s = data.student;
+
+          form.querySelector('[name="first_name"]').value = s.first_name || "";
+          form.querySelector('[name="last_name"]').value = s.last_name || "";
+          form.querySelector('[name="roll"]').value = s.roll || "";
+          form.querySelector('[name="registration"]').value =
+            s.registration || "";
+          form.querySelector('[name="email"]').value = s.email || "";
+          form.querySelector('[name="address"]').value = s.address || "";
+
+          setFormMode("edit", id);
+          showToast("Edit mode enabled. Update and submit.", "success");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (err) {
+          console.log(err);
+          showToast("Server error while loading student.", "error");
+        }
+      });
+
+      // ✅ DELETE with SweetAlert2
+      document.addEventListener("click", async (e) => {
+        const delBtn = e.target.closest(".btn-delete");
+        if (!delBtn) return;
+
+        const id = delBtn.dataset.id;
+
+        const result = await Swal.fire({
+          title: "Are you sure?",
+          text: "This student record will be permanently deleted.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#dc3545",
+          cancelButtonColor: "#6c757d",
+          confirmButtonText: "Yes, delete it",
+          cancelButtonText: "Cancel",
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+          const res = await fetch(`/delete/${id}`, {
+            method: "DELETE",
+          });
+
+          const data = await res.json();
+
+          if (!data.ok) {
+            Swal.fire("Error", data.message || "Delete failed.", "error");
+            return;
+          }
+
+          Swal.fire({
+            title: "Deleted!",
+            text: "Student has been deleted successfully.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          setTimeout(() => window.location.reload(), 800);
+        } catch (err) {
+          Swal.fire("Error", "Server error. Please try again.", "error");
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </body>
+</html>
