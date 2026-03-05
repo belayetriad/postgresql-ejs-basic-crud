@@ -1,0 +1,85 @@
+📦 Installation Summary
+
+Student Management System (TypeScript + PostgreSQL)
+
+1. System Requirements
+    Operating System: Windows 10 or later
+    Node.js: v18 or higher
+    PostgreSQL: v14 or higher
+    Browser: Chrome / Edge / Firefox
+
+
+2. PostgreSQL Setup
+    Install PostgreSQL from the official website.
+    Create a database (example: test_db).
+    Create the students table:
+
+    CREATE TABLE students (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    roll VARCHAR(50),
+    registration VARCHAR(50),
+    email VARCHAR(120),
+    address TEXT
+    );
+
+
+3. Project Setup
+    Download or clone the project.
+    Navigate to the project directory.
+    Install dependencies:
+    npm install
+
+4. Database Configuration
+    Update PostgreSQL credentials in src/db.ts:
+
+    export const pool = new Pool({
+    user: "postgres",
+    host: "localhost",
+    database: "test_db",
+    password: "YOUR_PASSWORD",
+    port: 5432,
+    });
+
+5. Static Assets
+    Place the application logo at:
+    src/public/logo.png
+
+    Static files are served automatically via Express.
+
+
+6. Running the Application
+    Start the development server:
+    npm run dev
+
+    The server runs at:
+    http://localhost:3000
+
+7. Access from Another Device
+    The application displays the public IP address in the header.
+    Use the following format to access from another device:
+    http://<PUBLIC_IP>:3000
+
+    Ensure port 3000 is allowed in the firewall.
+
+8. Application Features
+    Create student records
+    View student list (real-time)
+    Edit existing students
+    Delete students with SweetAlert confirmation
+
+    Popup notifications (toast messages)
+    Single-page form with server-side templates
+
+9. Technologies Used
+    Backend: Node.js, Express, TypeScript
+    Database: PostgreSQL
+    Templating Engine: EJS
+    UI Enhancements: CSS, SweetAlert2
+
+10. Deployment Notes
+    Suitable for academic projects and demos
+    Uses server-side rendering
+    No external frontend frameworks
+    Can be extended for production with authentication and validation

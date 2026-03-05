@@ -1,4 +1,7 @@
 import express from "express";
+import fs from "fs";
+import multer from "multer";
+import os from "os";
 import path from "path";
 import { pool } from "./db";
 
@@ -11,53 +14,95 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-async function getPublicIP() {
-  const res = await fetch("https://api.ipify.org?format=json");
-  const data = await res.json();
-  return data.ip;
+const uploadPath = path.join(__dirname, "public/uploads");
+
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + file.originalname;
+    cb(null, unique);
+  },
+});
+
+const upload = multer({ storage });
+
+function getLocalIPv4(): string {
+  const interfaces = os.networkInterfaces();
+
+  for (const name of Object.keys(interfaces)) {
+    const netInterface = interfaces[name];
+    if (!netInterface) continue;
+
+    for (const net of netInterface) {
+      if (net.family === "IPv4" && !net.internal) {
+        return net.address; // ✅ e.g. 192.168.1.105
+      }
+    }
+  }
+
+  return "Unavailable";
 }
 
 // ✅ Home page: show students list
 app.get("/", async (req, res) => {
   const students = await pool.query("SELECT * FROM students ORDER BY id DESC");
 
-  let publicIP = "Unavailable";
-  try {
-    publicIP = await getPublicIP();
-  } catch (err) {
-    console.error("Failed to fetch public IP");
-  }
+  const localIP = getLocalIPv4();
 
   res.render("form", {
     students: students.rows,
-    publicIP,
+    localIP,
   });
 });
 
 // ✅ Create student (returns JSON)
-app.post("/submit", async (req, res) => {
+app.post("/submit", upload.single("photo"), async (req, res) => {
   try {
     const { first_name, last_name, roll, registration, email, address } =
       req.body;
 
+    const photo = req.file ? `/uploads/${req.file.filename}` : null;
+
     await pool.query(
-      `INSERT INTO students (first_name, last_name, roll, registration, email, address)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [first_name, last_name, roll, registration, email, address]
+      `INSERT INTO students
+       (first_name, last_name, roll, registration, email, address, photo)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [first_name, last_name, roll, registration, email, address, photo],
     );
 
-    return res.json({
+    res.json({
       ok: true,
       message: `Student "${first_name} ${last_name}" saved successfully.`,
     });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ ok: false, message: "Failed to save student." });
+    res.status(500).json({ ok: false, message: "Failed to save student." });
   }
 });
+app.get("/view/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const result = await pool.query("SELECT * FROM students WHERE id=$1", [id]);
+
+    if (result.rows.length === 0) {
+      return res.send("Student not found");
+    }
+
+    const student = result.rows[0];
+
+    res.render("view", { student });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
 // ✅ Get one student for edit (returns JSON)
 app.get("/student/:id", async (req, res) => {
   try {
@@ -79,26 +124,42 @@ app.get("/student/:id", async (req, res) => {
   }
 });
 
-// ✅ Update student (returns JSON)
-app.post("/update/:id", async (req, res) => {
+// ✅ Get one student for edit (returns JSON)
+app.post("/update/:id", upload.single("photo"), async (req, res) => {
   try {
     const { id } = req.params;
     const { first_name, last_name, roll, registration, email, address } =
       req.body;
 
+    let photoQuery = "";
+    let values: any[] = [
+      first_name,
+      last_name,
+      roll,
+      registration,
+      email,
+      address,
+    ];
+
+    if (req.file) {
+      photoQuery = ", photo=$7";
+      values.push(`/uploads/${req.file.filename}`);
+      values.push(id);
+    } else {
+      values.push(id);
+    }
+
     await pool.query(
       `UPDATE students
-       SET first_name=$1, last_name=$2, roll=$3, registration=$4, email=$5, address=$6
-       WHERE id=$7`,
-      [first_name, last_name, roll, registration, email, address, id]
+       SET first_name=$1,last_name=$2,roll=$3,registration=$4,email=$5,address=$6${photoQuery}
+       WHERE id=$${values.length}`,
+      values,
     );
 
-    return res.json({ ok: true, message: "Student updated successfully." });
+    res.json({ ok: true, message: "Student updated successfully." });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ ok: false, message: "Failed to update student." });
+    res.status(500).json({ ok: false, message: "Failed to update student." });
   }
 });
 
@@ -117,6 +178,6 @@ app.delete("/delete/:id", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server running on all interfaces at port 3000");
 });
